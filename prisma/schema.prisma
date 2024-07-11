@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model cg {
+  id     String   @id @unique
+  name   String
+  zoneId String
+  zone   zone     @relation(fields: [zoneId], references: [id])
+  member member[]
+}
+
+model event {
+  id                String              @id @unique
+  eventName         String
+  date              DateTime
+  location          String
+  description       String
+  member_attendance member_attendance[]
+  nf_attendance     nf_attendance[]
+  member            member[]
+  nf                nf[]
+}
+
+model member {
+  id                           String              @id @unique
+  name                         String
+  gender                       gender
+  dateOfBirth                  DateTime
+  email                        String              @unique
+  contactNumber                String
+  school                       String?
+  address                      String
+  emergencyContactName         String?
+  emergencyContactNumber       String?
+  emergencyContactRelationship String?
+  remarks                      String?
+  profilePictureURL            String?
+  cgId                         String
+  roleId                       String
+  cg                           cg                  @relation(fields: [cgId], references: [id])
+  role                         role                @relation(fields: [roleId], references: [id])
+  member_attendance            member_attendance[]
+  member_team                  member_team[]
+  serving_ministry             serving_ministry?
+  zone                         zone?
+  event                        event[]
+  team                         team[]
+}
+
+model member_attendance {
+  memberId String
+  eventId  String
+  event    event  @relation(fields: [eventId], references: [id])
+  member   member @relation(fields: [memberId], references: [id])
+
+  @@id([memberId, eventId])
+}
+
+model member_team {
+  memberId String
+  teamId   String
+  member   member @relation(fields: [memberId], references: [id])
+  team     team   @relation(fields: [teamId], references: [id])
+
+  @@id([memberId, teamId])
+}
+
+model nf {
+  id              String          @id @unique
+  name            String
+  dateOfBirth     DateTime
+  age             Int
+  gender          gender
+  contactNumber   String
+  email           String          @unique
+  address         String
+  salvationStatus Boolean
+  remarks         String?
+  nf_attendance   nf_attendance[]
+  event           event[]
+}
+
+model nf_attendance {
+  nfId    String
+  eventId String
+  event   event  @relation(fields: [eventId], references: [id])
+  nf      nf     @relation(fields: [nfId], references: [id])
+
+  @@id([nfId, eventId])
+}
+
+model role {
+  id          String   @id @unique
+  roleName    String
+  description String
+  member      member[]
+}
+
+model serving_ministry {
+  id       String @id @unique
+  leaderId String
+  memberId String @unique
+  member   member @relation(fields: [memberId], references: [id])
+  team     team[]
+}
+
+model team {
+  id                 String           @id @unique
+  servingMinistryId  String
+  serving_ministryId String
+  member_team        member_team[]
+  serving_ministry   serving_ministry @relation(fields: [serving_ministryId], references: [id])
+  member             member[]
+}
+
+model zone {
+  id           String  @id @unique
+  name         String?
+  zoneLeaderId String?
+  memberId     String  @unique
+  cg           cg[]
+  member       member  @relation(fields: [memberId], references: [id])
+}
+
+enum gender {
+  MALE
+  FEMALE
+}
