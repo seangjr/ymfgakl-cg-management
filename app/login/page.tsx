@@ -1,11 +1,22 @@
 import { LoginForm } from "@/components/pages/LoginForm";
 
-export default function Page() {
+import { login } from "./actions";
+
+type PageProps = {
+  params?: {
+    num?: string;
+  }
+  searchParams?: {
+    error?: string;
+  }
+}
+
+export default function Page(props: PageProps) {
   return (
-    <div>
+    <section className="flex items-center justify-center min-h-screen">
       <form>
-        <LoginForm formAction="" />
+        <LoginForm formAction={login} error={props?.searchParams?.error} />
       </form>
-    </div>
+    </section>
   )
 }
