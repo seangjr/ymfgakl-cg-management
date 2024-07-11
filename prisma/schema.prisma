@@ -9,7 +9,7 @@ datasource db {
 }
 
 model cg {
-  id     String   @id @unique
+  id     String   @id @unique @default(cuid())
   name   String
   zoneId String
   zone   zone     @relation(fields: [zoneId], references: [id])
@@ -17,19 +17,19 @@ model cg {
 }
 
 model event {
-  id                String              @id @unique
+  id                String              @id @unique @default(cuid())
   eventName         String
   date              DateTime
   location          String
   description       String
   member_attendance member_attendance[]
   nf_attendance     nf_attendance[]
-  member            member[]
-  nf                nf[]
+  member            member[]            @relation("eventTomember")
+  nf                nf[]                @relation("eventTonf")
 }
 
 model member {
-  id                           String              @id @unique
+  id                           String              @id @unique @default(cuid())
   name                         String
   gender                       gender
   dateOfBirth                  DateTime
@@ -50,8 +50,8 @@ model member {
   member_team                  member_team[]
   serving_ministry             serving_ministry?
   zone                         zone?
-  event                        event[]
-  team                         team[]
+  event                        event[]             @relation("eventTomember")
+  team                         team[]              @relation("memberToteam")
 }
 
 model member_attendance {
@@ -73,7 +73,7 @@ model member_team {
 }
 
 model nf {
-  id              String          @id @unique
+  id              String          @id @unique @default(cuid())
   name            String
   dateOfBirth     DateTime
   age             Int
@@ -84,7 +84,7 @@ model nf {
   salvationStatus Boolean
   remarks         String?
   nf_attendance   nf_attendance[]
-  event           event[]
+  event           event[]         @relation("eventTonf")
 }
 
 model nf_attendance {
@@ -97,14 +97,14 @@ model nf_attendance {
 }
 
 model role {
-  id          String   @id @unique
+  id          String   @id @unique @default(cuid())
   roleName    String
   description String
   member      member[]
 }
 
 model serving_ministry {
-  id       String @id @unique
+  id       String @id @unique @default(cuid())
   leaderId String
   memberId String @unique
   member   member @relation(fields: [memberId], references: [id])
@@ -112,16 +112,16 @@ model serving_ministry {
 }
 
 model team {
-  id                 String           @id @unique
+  id                 String           @id @unique @default(cuid())
   servingMinistryId  String
   serving_ministryId String
   member_team        member_team[]
   serving_ministry   serving_ministry @relation(fields: [serving_ministryId], references: [id])
-  member             member[]
+  member             member[]         @relation("memberToteam")
 }
 
 model zone {
-  id           String  @id @unique
+  id           String  @id @unique @default(cuid())
   name         String?
   zoneLeaderId String?
   memberId     String  @unique
